@@ -26,7 +26,7 @@ var httpClient = http.Client{
 }
 
 func main() {
-	log.Printf("hello, batch deleter, set up currently to DELETE")
+	log.Printf("Batch Deleter server starting")
 	app := cli.App("batch-deleter", "A RESTful API for doing batch deletes from concept writers")
 	port := app.StringOpt("port", "8080", "Port to listen on")
 
@@ -88,18 +88,21 @@ func deleteAllUuids(host string, path string, uuids []string, basicAuth string) 
 		request, err := http.NewRequest("DELETE", reqURL, nil)
 		request.Header.Set("Authorization", basicAuth)
 		if err != nil {
-			log.Errorf("Could not create request, err=%s", err)
+			log.Errorf("Could not create request for reqURL=%s, err=%s", reqURL, err)
 			continue
 		}
 		log.Printf("About to Delete %s", request.URL)
 		resp, err := httpClient.Do(request)
 		defer resp.Body.Close()
 		if err != nil {
-			log.Errorf("Error from host=%s, err=%s", host, err)
+			log.Errorf("Error for reqURL=%s, err=%s", reqURL, err)
 			continue
 		}
-		log.Infof("Response=%s", resp.Status)
-
+		log.Infof("Response=%v", resp.StatusCode)
+		if http.StatusNoContent != resp.StatusCode && http.StatusNotFound != resp.StatusCode {
+			log.Errorf("Unexpected status code for reqURL=%s, code=%v", reqURL, resp.StatusCode)
+			continue
+		}
 	}
 }
 

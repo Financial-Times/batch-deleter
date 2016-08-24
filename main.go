@@ -83,7 +83,6 @@ func batchDelete(w http.ResponseWriter, req *http.Request) {
 func deleteAllUuids(host string, path string, uuids []string, basicAuth string) {
 	log.Printf("Deleting for host=%s path=%s uuids=%s", host, path, uuids)
 	for _, uuid := range uuids {
-		log.Printf("uuid=%s", uuid)
 		reqURL := host + "/" + path + "/" + uuid
 		request, err := http.NewRequest("DELETE", reqURL, nil)
 		request.Header.Set("Authorization", basicAuth)
@@ -91,7 +90,6 @@ func deleteAllUuids(host string, path string, uuids []string, basicAuth string) 
 			log.Errorf("Could not create request for reqURL=%s, err=%s", reqURL, err)
 			continue
 		}
-		log.Printf("About to Delete %s", request.URL)
 		resp, err := httpClient.Do(request)
 		defer resp.Body.Close()
 		if err != nil {
